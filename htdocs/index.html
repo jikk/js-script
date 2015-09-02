@@ -16,25 +16,16 @@ function to_date_string(d) {
 }
 
 var svg = dimple.newSvg("#chartContainer0", 590, 400);
-var svg1 = dimple.newSvg("#chartContainer1", 590, 400);
 
 d3.csv("templog.csv", function (data) {
   for (var i=0; i < data.length; i++) {
     data[i]['date'] = to_date_string((new Date(data[i]['timestamp'] * 1000)));
-    // data[i]['date'] = (new Date(data[i]['timestamp'] * 1000)).toString();
   }
 
   data2 = data.slice(-2000);
-  // data2 = data;
-
-  for (var i=0; i < data2.length; i++) {
-    data2[i]['date'] = to_date_string((new Date(data2[i]['timestamp'] * 1000)));
-  }
 
   var myChart = new dimple.chart(svg, data2);
-  var myChart1 = new dimple.chart(svg1, data2);
   myChart.setBounds(60, 30, 500, 300);
-  myChart1.setBounds(60, 30, 500, 300);
 
   var x = myChart.addTimeAxis("x", "date", "%m-%d-%H:%M:%S", "%m-%d-%H");
   x.timePeriod = d3.time.hours;
@@ -42,22 +33,15 @@ d3.csv("templog.csv", function (data) {
   x.addOrderRule("date");
   x.title = "Time (in hour)";
 
-  var x1 = myChart1.addTimeAxis("x", "date", "%m-%d-%H:%M:%S", "%m-%d-%H");
-  x1.timePeriod = d3.time.hours;
-  x1.timeInterval = 2;
-  x1.addOrderRule("date");
-  x1.title = "Time (in hour)";
-
   var y = myChart.addMeasureAxis("y", "temp");
-  var lines = myChart.addSeries(null, dimple.plot.line, [x, y]);
-  myChart.addColorAxis("c", "black");
-  //var y2 = myChart.addMeasureAxis("y", "humid");
-  //var lines2 = myChart.addSeries(null, dimple.plot.line, [x, y2]);
+  var lines = myChart.addSeries("Temperature", dimple.plot.line, [x, y]);
+  myChart.assignColor("Temperature", "red", "red", 1);
 
-  //myChart.addLegend(10, 10, 500, 30, "left", [lines, lines2]);
+  var y1 = myChart.addMeasureAxis("y", "humid", "xxx");
+  var lines2 = myChart.addSeries("Humidity", dimple.plot.line, [x, y1]);
+  myChart.assignColor("Humidity", "blue", "blue", 1);
 
-  //var y1 = myChart1.addMeasureAxis("y", "humid");
-  //var lines1 = myChart1.addSeries(null, dimple.plot.line);
+  myChart.addLegend(10, 10, 500, 30, "left", [lines, lines2]);
 
   x_max = 0;
   x_min = 200;
@@ -76,25 +60,21 @@ d3.csv("templog.csv", function (data) {
     if (data2[i]['humid'] > x1_max) {
       x1_max = data2[i]['humid'];
     }
+
     if (data2[i]['humid'] < x1_min) {
       x1_min = data2[i]['humid'];
     }
-
   }
+
   y.overrideMax = x_max + 1;
-  y.overrideMin = x_min - 1;
+  y.overrideMin = 65;
   y.title = "Temperature (F)"
-/*
-  y1.overrideMax = x1_max + 1;
+
+  y1.overrideMax = 75;
   y1.overrideMin = x1_min - 1;
   y1.title = "Humidity (%)"
 
-  y2.overrideMax = x1_max + 1;
-  y2.overrideMin = x1_min - 1;
-  y2.title = "Humidity (%)"
-*/
   myChart.draw();
-  // myChart1.draw();
 });
 </script>
 </div>
